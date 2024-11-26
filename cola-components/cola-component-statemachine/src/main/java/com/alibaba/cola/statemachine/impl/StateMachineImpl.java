@@ -1,12 +1,14 @@
 package com.alibaba.cola.statemachine.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.cola.statemachine.State;
 import com.alibaba.cola.statemachine.StateMachine;
 import com.alibaba.cola.statemachine.Transition;
 import com.alibaba.cola.statemachine.Visitor;
-
-import java.util.List;
-import java.util.Map;
+import com.alibaba.cola.statemachine.builder.FailCallback;
 
 /**
  * For performance consideration,
@@ -26,8 +28,21 @@ public class StateMachineImpl<S, E, C> implements StateMachine<S, E, C> {
 
     private boolean ready;
 
+    private FailCallback<S, E, C> failCallback;
+
     public StateMachineImpl(Map<S, State<S, E, C>> stateMap) {
         this.stateMap = stateMap;
+    }
+
+    @Override
+    public boolean verify(S sourceStateId, E event) {
+        isReady();
+
+        State sourceState = getState(sourceStateId);
+
+        List<Transition<S, E, C>> transitions = sourceState.getEventTransitions(event);
+
+        return transitions != null && transitions.size() != 0;
     }
 
     @Override
@@ -37,10 +52,28 @@ public class StateMachineImpl<S, E, C> implements StateMachine<S, E, C> {
 
         if (transition == null) {
             Debugger.debug("There is no Transition for " + event);
+            failCallback.onFail(sourceStateId, event, ctx);
             return sourceStateId;
         }
 
         return transition.transit(ctx, false).getId();
+    }
+    @Override
+    public List<S> fireParallelEvent(S sourceState, E event, C context) {
+        isReady();
+        List<Transition<S, E, C>> transitions = routeTransitions(sourceState, event, context);
+        List<S> result = new ArrayList<>();
+        if (transitions == null||transitions.isEmpty()) {
+            Debugger.debug("There is no Transition for " + event);
+            failCallback.onFail(sourceState, event, context);
+            result.add(sourceState);
+            return result;
+        }
+        for (Transition<S, E, C> transition : transitions) {
+            S id = transition.transit(context, false).getId();
+            result.add(id);
+        }
+        return result;
     }
 
     private Transition<S, E, C> routeTransition(S sourceStateId, E event, C ctx) {
@@ -63,6 +96,25 @@ public class StateMachineImpl<S, E, C> implements StateMachine<S, E, C> {
         }
 
         return transit;
+    }
+    private List<Transition<S,E,C>> routeTransitions(S sourceStateId, E event, C context) {
+        State sourceState = getState(sourceStateId);
+        List<Transition<S, E, C>> result = new ArrayList<>();
+        List<Transition<S, E, C>> transitions = sourceState.getEventTransitions(event);
+        if (transitions == null || transitions.size() == 0) {
+            return null;
+        }
+
+        for (Transition<S, E, C> transition : transitions) {
+            Transition<S, E, C> transit = null;
+            if (transition.getCondition() == null) {
+                transit = transition;
+            } else if (transition.getCondition().isSatisfied(context)) {
+                transit = transition;
+            }
+            result.add(transit);
+        }
+        return result;
     }
 
     private State getState(S currentStateId) {
@@ -114,5 +166,9 @@ public class StateMachineImpl<S, E, C> implements StateMachine<S, E, C> {
 
     public void setReady(boolean ready) {
         this.ready = ready;
+    }
+
+    public void setFailCallback(FailCallback<S, E, C> failCallback) {
+        this.failCallback = failCallback;
     }
 }

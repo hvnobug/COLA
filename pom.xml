@@ -12,21 +12,17 @@
     -->
     <groupId>com.alibaba.cola</groupId>
     <artifactId>cola-dummy-aggregation-parent</artifactId>
-    <version>dummy</version>
+    <version>dummy-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>cola-components</module>
         <module>cola-archetypes</module>
 
-        <module>samples/craftsman</module>
-    </modules>
-
-    <properties>
+        <module>cola-samples/craftsman</module>
+        <!-- A test failed module is better to get out. -->
         <!--
-            skip maven deploy for cola-dump-aggregation-parent
-            https://maven.apache.org/plugins/maven-deploy-plugin/deploy-mojo.html#skip
+        <module>cola-samples/charge</module>
         -->
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
+    </modules>
 </project>

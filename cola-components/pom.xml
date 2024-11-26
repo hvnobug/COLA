@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.alibaba.cola</groupId>
     <artifactId>cola-components-parent</artifactId>
-    <version>4.2.0-SNAPSHOT</version>
+    <version>5.x-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>${project.artifactId}:${project.version}</name>
+    <name>${project.artifactId}</name>
     <description>${project.artifactId}</description>
     <url>https://github.com/alibaba/COLA</url>
 
@@ -59,56 +60,43 @@
         <module>cola-component-extension-starter</module>
         <module>cola-component-catchlog-starter</module>
         <module>cola-component-test-container</module>
+        <module>cola-components-bom</module>
+        <module>cola-component-ruleengine</module>
+        <module>cola-component-unittest</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <spring.boot.version>2.2.6.RELEASE</spring.boot.version>
-        <spring.version>5.2.2.RELEASE</spring.version>
-        <lombok.version>1.18.22</lombok.version>
-        <logback.version>1.2.10</logback.version>
+        <spring.boot.version>3.3.0</spring.boot.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- 测试包 -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
-            <!-- 日志 -->
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.33</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
             <!-- 工具包 -->
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
@@ -118,50 +106,19 @@
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.5.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>1.3.2</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <!-- 测试包 -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.2</version>
-                <scope>test</scope>
+                <version>1.8.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.9.0</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
             <!--
                 add maven-enforce-plugin to make sure the right jdk is used
                 https://stackoverflow.com/a/18420462/922688
             -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -177,19 +134,61 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <!--
-                    config example: https://github.com/mojohaus/versions-maven-plugin/issues/157#issuecomment-306041074
-                -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <rulesUri>file://${maven.multiModuleProjectDirectory}/cola-component-dto/src/versions-rules.xml</rulesUri>
-                    <generateBackupPoms>false</generateBackupPoms>
-                </configuration>
-            </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.7.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.13</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.12</version>
+                </plugin>
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>4.9.10</version>
+                </plugin>
+                <!--修复老的maven-surefire-plugin不支持junit5 + spring5的bug-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <distributionManagement>
@@ -201,7 +200,7 @@
 
     <profiles>
         <profile>
-            <id>gen-src+doc</id>
+            <id>gen-java-src</id>
             <activation>
                 <property>
                     <name>performRelease</name>
@@ -211,22 +210,23 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>gen-java-doc</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.1</version>
                         <executions>
                             <execution>
                                 <id>attach-javadoc</id>
@@ -236,13 +236,12 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <source>8</source>
+                            <source>17</source>
                             <show>protected</show>
                             <charset>UTF-8</charset>
                             <encoding>UTF-8</encoding>
                             <docencoding>UTF-8</docencoding>
                             <additionalJOptions>
-                                <additionalJOption>--no-module-directories</additionalJOption>
                                 <additionalJOption>-quiet</additionalJOption>
                                 <additionalJOption>-J-Duser.language=en</additionalJOption>
                                 <additionalJOption>-J-Duser.country=US</additionalJOption>
@@ -264,12 +263,12 @@
             <build>
                 <plugins>
                     <plugin>
-                        <!-- for codecov.io -->
-                        <!-- config example: https://github.com/codecov/example-java -->
-                        <!-- plugin docs: http://eclemma.org/jacoco/trunk/doc/ -->
+                        <!--
+                            plugin docs: http://eclemma.org/jacoco/trunk/doc/
+                            for codecov.io, config example https://github.com/codecov/example-java
+                        -->
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.7</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -299,9 +298,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -326,14 +323,13 @@
             <build>
                 <plugins>
                     <!--
-                        Maven plugin which includes build-time git repository information into an POJO / *.properties).
-                        Make your apps tell you which version exactly they were built from! Priceless in large distributed deployments.
-                            https://github.com/ktoso/maven-git-commit-id-plugin
-                    -->
+                                            Maven plugin which includes build-time git repository information into an POJO / *.properties).
+                                            Make your apps tell you which version exactly they were built from! Priceless in large distributed deployments.
+                                                https://github.com/ktoso/maven-git-commit-id-plugin
+                                        -->
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
                         <artifactId>git-commit-id-plugin</artifactId>
-                        <version>4.9.10</version>
                         <executions>
                             <execution>
                                 <id>get-the-git-infos</id>
@@ -358,7 +354,9 @@
                                 </validationProperty>
                             </validationProperties>
                             <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                            <generateGitPropertiesFilename>${project.build.outputDirectory}/META-INF/scm/${project.groupId}/${project.artifactId}/git.properties</generateGitPropertiesFilename>
+                            <generateGitPropertiesFilename>
+                                ${project.build.outputDirectory}/META-INF/scm/${project.groupId}/${project.artifactId}/git.properties
+                            </generateGitPropertiesFilename>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -379,7 +377,6 @@
                         https://stackoverflow.com/a/18420462/922688
                     -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <executions>
                             <execution>
@@ -389,7 +386,7 @@
                                 <configuration>
                                     <rules>
                                         <requireJavaVersion>
-                                            <version>11</version>
+                                            <version>17</version>
                                         </requireJavaVersion>
                                     </rules>
                                 </configuration>
@@ -412,7 +409,6 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>

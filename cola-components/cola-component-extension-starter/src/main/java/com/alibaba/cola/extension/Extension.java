@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.*;
 
 /**
- * Extension 
+ * Extension
  * @author fulan.zjf 2017-11-05
  */
 @Inherited

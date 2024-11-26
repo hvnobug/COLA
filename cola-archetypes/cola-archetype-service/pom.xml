@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.alibaba.cola</groupId>
-        <artifactId>cola-archetypes-parent</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <artifactId>cola-framework-archetypes-parent</artifactId>
+        <version>5.x-SNAPSHOT</version>
     </parent>
 
     <artifactId>cola-framework-archetype-service</artifactId>
     <packaging>maven-archetype</packaging>
-    <name>${project.artifactId}:${project.version}</name>
+    <name>${project.artifactId}</name>
     <description>${project.artifactId}</description>
     <url>https://github.com/alibaba/COLA</url>
 
